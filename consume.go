@@ -1,4 +1,4 @@
-package main
+package gomicrosvc
 
 import (
 	"fmt"
@@ -9,10 +9,10 @@ import (
 
 // StartConsumer -
 func (conn Channel) StartConsumer(
-	queueName,
 	routingKey string,
 	handler func(d amqp.Delivery) bool,
 	concurrency int) error {
+	queueName := getFunctionName(handler)
 
 	// create the queue if it doesn't already exist
 	_, err := conn.Channel.QueueDeclare(queueName, true, false, false, false, nil)

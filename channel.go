@@ -1,4 +1,4 @@
-package main
+package gomicrosvc
 
 import (
 	"github.com/streadway/amqp"

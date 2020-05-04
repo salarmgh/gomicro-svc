@@ -1,6 +1,6 @@
-package main
+package gomicrosvc
 
-func initialize(ch *Channel) {
+func Initialize(ch *Channel) {
 	ch.Channel.ExchangeDeclare(
 		"rpc-bus", // name
 		"topic",   // type
