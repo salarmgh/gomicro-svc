@@ -4,7 +4,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
-func (conn Conn) Publish(routingKey string, data []byte) error {
+func (conn Channel) Publish(routingKey string, data []byte) error {
 	return conn.Channel.Publish(
 		// exchange - yours may be different
 		"events",

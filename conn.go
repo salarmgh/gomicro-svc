@@ -5,7 +5,7 @@ import (
 )
 
 type Conn struct {
-	Channel *amqp.Channel
+	Connection *amqp.Connection
 }
 
 func GetConn(rabbitURL string) (Conn, error) {
@@ -14,8 +14,7 @@ func GetConn(rabbitURL string) (Conn, error) {
 		return Conn{}, err
 	}
 
-	ch, err := conn.Channel()
 	return Conn{
-		Channel: ch,
+		Connection: conn,
 	}, err
 }

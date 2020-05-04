@@ -13,14 +13,18 @@ func main() {
 		panic(err)
 	}
 
+	ch, err := GetChannel(&conn)
+
+	initialize(&ch)
+
 	go func() {
 		for {
 			time.Sleep(time.Second)
-			conn.Publish("test-key", []byte(`{"message":"test"}`))
+			ch.Publish("test-key", []byte(`{"message":"test"}`))
 		}
 	}()
 
-	err = conn.StartConsumer("test-queue", "test-key", handler, 2)
+	err = ch.StartConsumer("test-queue", "test-key", handler, 2)
 
 	if err != nil {
 		panic(err)

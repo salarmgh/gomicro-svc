@@ -8,7 +8,7 @@ import (
 )
 
 // StartConsumer -
-func (conn Conn) StartConsumer(
+func (conn Channel) StartConsumer(
 	queueName,
 	routingKey string,
 	handler func(d amqp.Delivery) bool,
