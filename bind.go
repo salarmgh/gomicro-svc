@@ -6,8 +6,13 @@ import (
 	"github.com/streadway/amqp"
 )
 
-func bindHandler(ch *Channel, key string, handler func(d amqp.Delivery) bool) {
-	err := ch.StartConsumer(key, handler, 2)
+func bindHandler(key string, handler func(d amqp.Delivery) bool) {
+	ch, err := GetChannel(&Connection)
+	if err != nil {
+		panic(err)
+	}
+
+	err = ch.StartConsumer(key, handler, 2)
 
 	if err != nil {
 		panic(err)
@@ -17,8 +22,8 @@ func bindHandler(ch *Channel, key string, handler func(d amqp.Delivery) bool) {
 	<-forever
 }
 
-func Binder(ch *Channel, handlers []func(d amqp.Delivery) bool) {
+func Binder(handlers []func(d amqp.Delivery) bool) {
 	for i, handler := range handlers {
-		go bindHandler(ch, "handler-"+strconv.Itoa(i), handler)
+		go bindHandler("handler-"+strconv.Itoa(i), handler)
 	}
 }

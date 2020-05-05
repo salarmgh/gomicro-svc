@@ -1,7 +1,14 @@
 package gomicrosvc
 
-func Initialize(ch *Channel) {
-	ch.Channel.ExchangeDeclare(
+var Connection = GetConn("amqp://guest:guest@localhost")
+
+func Initialize() {
+	ch, err := GetChannel(&Connection)
+	if err != nil {
+		panic(err)
+	}
+
+	err = ch.Channel.ExchangeDeclare(
 		"rpc-bus", // name
 		"topic",   // type
 		true,      // durable
@@ -10,4 +17,8 @@ func Initialize(ch *Channel) {
 		false,     // no-wait
 		nil,       // arguments
 	)
+
+	if err != nil {
+		panic(err)
+	}
 }
