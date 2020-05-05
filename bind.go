@@ -1,18 +1,17 @@
 package gomicrosvc
 
 import (
-	"strconv"
-
 	"github.com/streadway/amqp"
 )
 
 func bindHandler(key string, handler func(d amqp.Delivery) bool) {
+	const BASE_NAME = "test" + "."
 	ch, err := GetChannel(&Connection)
 	if err != nil {
 		panic(err)
 	}
 
-	err = ch.StartConsumer(key, handler, 2)
+	err = ch.StartConsumer(BASE_NAME+key, handler, 2)
 
 	if err != nil {
 		panic(err)
@@ -23,7 +22,7 @@ func bindHandler(key string, handler func(d amqp.Delivery) bool) {
 }
 
 func Binder(handlers []func(d amqp.Delivery) bool) {
-	for i, handler := range handlers {
-		go bindHandler("handler-"+strconv.Itoa(i), handler)
+	for _, handler := range handlers {
+		go bindHandler(getFunctionName(handler), handler)
 	}
 }
