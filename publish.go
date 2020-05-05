@@ -7,7 +7,7 @@ import (
 func (conn Channel) Publish(routingKey string, data []byte) error {
 	return conn.Channel.Publish(
 		// exchange - yours may be different
-		"events",
+		"rpc-bus",
 		routingKey,
 		// mandatory - we don't care if there I no queue
 		false,

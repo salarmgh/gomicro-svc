@@ -21,7 +21,7 @@ func (conn Channel) StartConsumer(
 	}
 
 	// bind the queue to the routing key
-	err = conn.Channel.QueueBind(queueName, routingKey, "events", false, nil)
+	err = conn.Channel.QueueBind(queueName, routingKey, "rpc-bus", false, nil)
 	if err != nil {
 		return err
 	}
