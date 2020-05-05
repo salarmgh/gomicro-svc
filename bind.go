@@ -1,17 +1,19 @@
 package gomicrosvc
 
 import (
+	"fmt"
+
 	"github.com/streadway/amqp"
 )
 
 func bindHandler(key string, handler func(d amqp.Delivery) bool) {
-	const BASE_NAME = "test" + "."
+	routingKey := fmt.Sprintf("%s.%s", config.App, key)
 	ch, err := GetChannel(&Connection)
 	if err != nil {
 		panic(err)
 	}
 
-	err = ch.StartConsumer(BASE_NAME+key, handler, 2)
+	err = ch.StartConsumer(routingKey, handler, 2)
 
 	if err != nil {
 		panic(err)

@@ -24,7 +24,6 @@ func Initialize() {
 		false,                    // no-wait
 		nil,                      // arguments
 	)
-
 	if err != nil {
 		panic(err)
 	}

@@ -7,6 +7,7 @@ import (
 )
 
 type Configuration struct {
+	App      string `yaml:"app"`
 	Rabbitmq struct {
 		Host     string `yaml:"host"`
 		User     string `yaml:"user"`
