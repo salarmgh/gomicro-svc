@@ -1,21 +1,24 @@
 package gomicrosvc
 
+import "fmt"
+
 func RPCCall(routingKey string) string {
 	ch, err := GetChannel(&Connection)
 	if err != nil {
 		panic(err)
 	}
 
-	ch.Publish(routingKey, "1", "2", []byte("testestedte"))
+	queueName := fmt.Sprintf("%s%s", "myApp",
+		"_rpc_proxy-5a4009ec-da68-42e0-8912-e53345e37444")
 
-	//queueName := fmt.Sprintf("%s%s", "myApp",
-	//	"_rpc_proxy-5a4009ec-da68-42e0-8912-e53345e37444")
+	result, err := ch.SyncConsumer("server.testHandler1", queueName,
+		[]byte(`{"message":"handler 1"}`))
+	if err != nil {
+		panic(err)
+	}
 
-	//result, err := ch.SyncConsumer("server.testHandler1", queueName,
-	//	[]byte(`{"message":"handler 1"}`))
-	//if err != nil {
-	//	panic(err)
-	//}
+	ch.Publish(routingKey, queueName, "2", []byte("testestedte"))
+
 	return "test"
 }
 
