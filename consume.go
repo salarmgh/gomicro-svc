@@ -3,25 +3,20 @@ package gomicrosvc
 import (
 	"fmt"
 	"os"
-
-	"github.com/streadway/amqp"
 )
 
 // StartConsumer -
-func (conn Channel) StartConsumer(
-	routingKey string,
-	handler func(d amqp.Delivery) bool,
-	concurrency int) error {
-	queueName := getFunctionName(handler)
-
+func (conn Channel) StartConsumer(concurrency int) error {
+	queueName := config.App
 	// create the queue if it doesn't already exist
-	_, err := conn.Channel.QueueDeclare(queueName, true, false, false, false, nil)
+	_, err := conn.Channel.QueueDeclare(queueName, true, false, false, false,
+		nil)
 	if err != nil {
 		return err
 	}
 
 	// bind the queue to the routing key
-	err = conn.Channel.QueueBind(queueName, routingKey, "rpc-bus", false, nil)
+	err = conn.Channel.QueueBind(queueName, queueName+".*", config.Rabbitmq.Exchange, false, nil)
 	if err != nil {
 		return err
 	}
@@ -46,7 +41,6 @@ func (conn Channel) StartConsumer(
 		return err
 	}
 
-	// create a goroutine for the number of concurrent threads requested
 	for i := 0; i < concurrency; i++ {
 		fmt.Printf("Processing messages on thread %v...\n", i)
 		go func() {
@@ -54,7 +48,7 @@ func (conn Channel) StartConsumer(
 				// if tha handler returns true then ACK, else NACK
 				// the message back into the rabbit queue for
 				// another round of processing
-				if handler(msg) {
+				if Dispatcher(msg) {
 					msg.Ack(false)
 				} else {
 					msg.Nack(false, true)

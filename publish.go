@@ -4,18 +4,22 @@ import (
 	"github.com/streadway/amqp"
 )
 
-func (conn Channel) Publish(routingKey string, data []byte) error {
+func (conn Channel) Publish(routingKey string, replyTo string,
+	correlationId string, data []byte) error {
 	return conn.Channel.Publish(
 		// exchange - yours may be different
-		"rpc-bus",
+		config.Rabbitmq.Exchange,
 		routingKey,
 		// mandatory - we don't care if there I no queue
 		false,
 		// immediate - we don't care if there is no consumer on the queue
 		false,
 		amqp.Publishing{
-			ContentType:  "application/json",
-			Body:         data,
-			DeliveryMode: amqp.Persistent,
+			ContentType:   "application/json",
+			ReplyTo:       "1",
+			CorrelationId: "2",
+			Priority:      0,
+			Body:          data,
+			DeliveryMode:  amqp.Persistent,
 		})
 }

@@ -1,11 +1,22 @@
 package gomicrosvc
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/streadway/amqp"
+)
 
 var Connection Conn
 
-func Initialize() {
+var Handlers map[string]func(d amqp.Delivery) bool
+
+func Initialize(handlers []func(d amqp.Delivery) bool) {
 	initConfig()
+	h := map[string]func(d amqp.Delivery) bool{}
+	for _, function := range handlers {
+		h[getFunctionName(function)] = function
+	}
+	Handlers = h
 
 	Connection = GetConn(fmt.Sprintf("amqp://%s:%s@%s", config.Rabbitmq.User,
 		config.Rabbitmq.Password, config.Rabbitmq.Host))
