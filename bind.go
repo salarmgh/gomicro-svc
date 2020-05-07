@@ -1,12 +1,12 @@
 package gomicrosvc
 
-func Bind() {
+func Start() {
 	ch, err := GetChannel(&Connection)
 	if err != nil {
 		panic(err)
 	}
 
-	err = ch.StartConsumer(2)
+	err = ch.StartConsumer(config.Threads)
 	if err != nil {
 		panic(err)
 	}

@@ -5,50 +5,38 @@ import (
 	"os"
 )
 
-// StartConsumer -
 func (conn Channel) StartConsumer(concurrency int) error {
 	queueName := config.App
-	// create the queue if it doesn't already exist
 	_, err := conn.Channel.QueueDeclare(queueName, true, false, false, false,
 		nil)
 	if err != nil {
 		return err
 	}
 
-	// bind the queue to the routing key
-	err = conn.Channel.QueueBind(queueName, queueName+".*", config.Rabbitmq.Exchange, false, nil)
-	if err != nil {
-		return err
-	}
-
-	// prefetch 4x as many messages as we can handle at once
-	prefetchCount := concurrency * 4
-	err = conn.Channel.Qos(prefetchCount, 0, false)
+	err = conn.Channel.QueueBind(queueName, queueName+".*",
+		config.Rabbitmq.Exchange, false, nil)
 	if err != nil {
 		return err
 	}
 
 	msgs, err := conn.Channel.Consume(
-		queueName, // queue
-		"",        // consumer
-		false,     // auto-ack
-		false,     // exclusive
-		false,     // no-local
-		false,     // no-wait
-		nil,       // args
+		queueName,
+		"",
+		false,
+		false,
+		false,
+		false,
+		nil,
 	)
 	if err != nil {
 		return err
 	}
 
+	fmt.Println("GoMicroSVC started ...")
 	for i := 0; i < concurrency; i++ {
-		fmt.Printf("Processing messages on thread %v...\n", i)
 		go func() {
 			for msg := range msgs {
-				// if tha handler returns true then ACK, else NACK
-				// the message back into the rabbit queue for
-				// another round of processing
-				if Dispatcher(msg) {
+				if dispatcher(msg) {
 					msg.Ack(false)
 				} else {
 					msg.Nack(false, true)

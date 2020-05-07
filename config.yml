@@ -1,5 +1,0 @@
-rabbitmq:
-  host: "localhost"
-  user: "guest"
-  password: "guest"
-  exchange: "rpc-bus"

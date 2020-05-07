@@ -5,7 +5,7 @@ import (
 )
 
 func (conn Channel) Publish(routingKey string, replyTo string,
-	correlationId string, data []byte) error {
+	data []byte) error {
 	return conn.Channel.Publish(
 		// exchange - yours may be different
 		config.Rabbitmq.Exchange,
@@ -15,11 +15,10 @@ func (conn Channel) Publish(routingKey string, replyTo string,
 		// immediate - we don't care if there is no consumer on the queue
 		false,
 		amqp.Publishing{
-			ContentType:   "application/json",
-			ReplyTo:       replyTo,
-			CorrelationId: "2",
-			Priority:      0,
-			Body:          data,
-			DeliveryMode:  amqp.Persistent,
+			ContentType:  "application/json",
+			ReplyTo:      replyTo,
+			Priority:     0,
+			Body:         data,
+			DeliveryMode: amqp.Persistent,
 		})
 }

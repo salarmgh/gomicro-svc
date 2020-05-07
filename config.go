@@ -14,17 +14,18 @@ type Configuration struct {
 		Password string `yaml:"password"`
 		Exchange string `yaml:"exchange"`
 	} `yaml:"rabbitmq"`
+	Threads int `yaml:"threads"`
 }
 
 var config Configuration
 
 func initConfig() {
-	file, err := ioutil.ReadFile("config.yml")
+	configFile, err := ioutil.ReadFile("config.yml")
 	if err != nil {
 		panic(err)
 	}
 
-	err = yaml.Unmarshal(file, &config)
+	err = yaml.Unmarshal(configFile, &config)
 	if err != nil {
 		panic(err)
 	}

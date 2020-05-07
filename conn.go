@@ -8,13 +8,10 @@ type Conn struct {
 	Connection *amqp.Connection
 }
 
-func GetConn(rabbitURL string) Conn {
+func GetConn(rabbitURL string) (Conn, error) {
 	conn, err := amqp.Dial(rabbitURL)
-	if err != nil {
-		panic(err)
-	}
 
 	return Conn{
 		Connection: conn,
-	}
+	}, err
 }

@@ -7,37 +7,50 @@ import (
 )
 
 var Connection Conn
-
-var Handlers map[string]func(d amqp.Delivery) bool
+var Handlers map[string]func(message amqp.Delivery) bool
 var Channels map[string]chan string
 
-func Initialize(handlers []func(d amqp.Delivery) bool) {
+func Initialize(handlers []func(message amqp.Delivery) bool) {
 	initConfig()
-	h := map[string]func(d amqp.Delivery) bool{}
-	for _, function := range handlers {
-		h[getFunctionName(function)] = function
+
+	rabbitmqURI := fmt.Sprintf("amqp://%s:%s@%s", config.Rabbitmq.User,
+		config.Rabbitmq.Password, config.Rabbitmq.Host)
+	conn, err := GetConn(rabbitmqURI)
+	if err != nil {
+		panic(err)
 	}
-	Handlers = h
+	Connection = conn
+
+	registerHandlers(handlers)
+
 	Channels = make(map[string]chan string)
 
-	Connection = GetConn(fmt.Sprintf("amqp://%s:%s@%s", config.Rabbitmq.User,
-		config.Rabbitmq.Password, config.Rabbitmq.Host))
+	err = declareExchange(config.Rabbitmq.Exchange)
+	if err != nil {
+		panic(err)
+	}
+}
 
+func declareExchange(exchangeName string) error {
 	ch, err := GetChannel(&Connection)
 	if err != nil {
 		panic(err)
 	}
-
-	err = ch.Channel.ExchangeDeclare(
-		config.Rabbitmq.Exchange, // name
-		"topic",                  // type
-		true,                     // durable
-		false,                    // auto-deleted
-		false,                    // internal
-		false,                    // no-wait
-		nil,                      // arguments
+	return ch.Channel.ExchangeDeclare(
+		exchangeName,
+		"topic",
+		true,
+		false,
+		false,
+		false,
+		nil,
 	)
-	if err != nil {
-		panic(err)
+}
+
+func registerHandlers(handlers []func(message amqp.Delivery) bool) {
+	h := map[string]func(message amqp.Delivery) bool{}
+	for _, function := range handlers {
+		h[getFunctionName(function)] = function
 	}
+	Handlers = h
 }

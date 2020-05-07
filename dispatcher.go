@@ -7,24 +7,27 @@ import (
 	"github.com/streadway/amqp"
 )
 
-func Dispatcher(d amqp.Delivery) bool {
-	if d.Body == nil {
+func dispatcher(message amqp.Delivery) bool {
+	if message.Body == nil {
 		fmt.Println("Error, no message body!")
 		return false
 	}
 
-	handler := strings.Split(d.RoutingKey, ".")[1]
-	isReply := strings.Split(handler, "_")
-	if isReply[0] == "reply" {
+	method := strings.Split(message.RoutingKey, ".")[1]
+	reply := strings.Split(method, "_")
+	isReply := reply[0] == "reply"
+
+	if isReply {
 		go func() {
-			if h, ok := Channels[isReply[1]]; ok {
-				h <- string(d.Body)
-				delete(Channels, isReply[1])
+			callID := reply[1]
+			if handler, ok := Channels[callID]; ok {
+				handler <- string(message.Body)
+				delete(Channels, callID)
 			}
 		}()
 	} else {
-		if h, ok := Handlers[handler]; ok {
-			go h(d)
+		if handler, ok := Handlers[method]; ok {
+			go handler(message)
 		}
 	}
 	return true
