@@ -16,7 +16,7 @@ func (conn Channel) Publish(routingKey string, replyTo string,
 		false,
 		amqp.Publishing{
 			ContentType:   "application/json",
-			ReplyTo:       "1",
+			ReplyTo:       replyTo,
 			CorrelationId: "2",
 			Priority:      0,
 			Body:          data,

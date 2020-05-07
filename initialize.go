@@ -9,6 +9,7 @@ import (
 var Connection Conn
 
 var Handlers map[string]func(d amqp.Delivery) bool
+var Channels map[string]chan string
 
 func Initialize(handlers []func(d amqp.Delivery) bool) {
 	initConfig()
@@ -17,6 +18,7 @@ func Initialize(handlers []func(d amqp.Delivery) bool) {
 		h[getFunctionName(function)] = function
 	}
 	Handlers = h
+	Channels = make(map[string]chan string)
 
 	Connection = GetConn(fmt.Sprintf("amqp://%s:%s@%s", config.Rabbitmq.User,
 		config.Rabbitmq.Password, config.Rabbitmq.Host))

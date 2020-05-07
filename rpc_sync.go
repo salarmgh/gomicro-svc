@@ -8,18 +8,22 @@ func RPCCall(routingKey string) string {
 		panic(err)
 	}
 
-	queueName := fmt.Sprintf("%s%s", "myApp",
-		"_rpc_proxy-5a4009ec-da68-42e0-8912-e53345e37444")
+	uid := "5a4009ec-da68-42e0-8912-e53345e37444"
+	queueName := fmt.Sprintf("%s%s%s", config.App,
+		".reply_", uid)
 
-	result, err := ch.SyncConsumer("server.testHandler1", queueName,
-		[]byte(`{"message":"handler 1"}`))
-	if err != nil {
-		panic(err)
-	}
+	//result, err := ch.SyncConsumer("server.testHandler1", queueName,
+	//	[]byte(`{"message":"handler 1"}`))
+	//if err != nil {
+	//	panic(err)
+	//}
+
+	c := make(chan string)
+	Channels[uid] = c
 
 	ch.Publish(routingKey, queueName, "2", []byte("testestedte"))
 
-	return "test"
+	return <-c
 }
 
 // StartConsumer -

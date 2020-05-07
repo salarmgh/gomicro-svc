@@ -14,8 +14,17 @@ func Dispatcher(d amqp.Delivery) bool {
 	}
 
 	handler := strings.Split(d.RoutingKey, ".")[1]
-	if h, ok := Handlers[handler]; ok {
-		h(d)
+	isReply := strings.Split(handler, "_")
+	if isReply[0] == "reply" {
+		go func() {
+			if h, ok := Channels[isReply[1]]; ok {
+				h <- string(d.Body)
+			}
+		}()
+	} else {
+		if h, ok := Handlers[handler]; ok {
+			go h(d)
+		}
 	}
 	return true
 }
