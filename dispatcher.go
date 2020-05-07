@@ -19,6 +19,7 @@ func Dispatcher(d amqp.Delivery) bool {
 		go func() {
 			if h, ok := Channels[isReply[1]]; ok {
 				h <- string(d.Body)
+				delete(Channels, isReply[1])
 			}
 		}()
 	} else {
