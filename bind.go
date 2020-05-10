@@ -11,6 +11,4 @@ func Start() {
 		panic(err)
 	}
 
-	forever := make(chan bool)
-	<-forever
 }
