@@ -8,7 +8,7 @@ func Start() {
 		panic(err)
 	}
 
-	err = ch.StartConsumer(Config["Threads"])
+	err = ch.StartConsumer(Config.Threads)
 	if err != nil {
 		panic(err)
 	}

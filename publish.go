@@ -8,7 +8,7 @@ func (conn Channel) Publish(routingKey string, replyTo string,
 	data []byte) error {
 	return conn.Channel.Publish(
 		// exchange - yours may be different
-		Config["Rabbitmq"]["Exchange"],
+		Config.Rabbitmq.Exchange,
 		routingKey,
 		// mandatory - we don't care if there I no queue
 		false,

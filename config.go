@@ -1,23 +1,31 @@
 package gomicrosvc
 
-import (
-	"io/ioutil"
+type Rabbitmq struct {
+	Host     string
+	User     string
+	Password string
+	Exchange string
+}
 
-	"gopkg.in/yaml.v2"
-)
+type Configuration struct {
+	App      string
+	Rabbitmq Rabbitmq
+	Threads  int
+}
 
-var Config map[interface{}]interface{}
+var Config Configuration
 
-func InitConfig() {
-	Config = make(map[interface{}]interface{})
+func initConfig(app string, rabbitmqHost string, rabbitmqUser string,
+	rabbitmqPass string, rabbitmqExchange string, threadsNumber int) {
 
-	configFile, err := ioutil.ReadFile("config.yml")
-	if err != nil {
-		panic(err)
-	}
-
-	err = yaml.Unmarshal(configFile, &Config)
-	if err != nil {
-		panic(err)
+	Config = Configuration{
+		App: app,
+		Rabbitmq: Rabbitmq{
+			Host:     rabbitmqHost,
+			User:     rabbitmqUser,
+			Password: rabbitmqPass,
+			Exchange: rabbitmqExchange,
+		},
+		Threads: threadsNumber,
 	}
 }

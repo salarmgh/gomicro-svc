@@ -6,7 +6,7 @@ import (
 )
 
 func (conn Channel) StartConsumer(concurrency int) error {
-	queueName := Config["App"]
+	queueName := Config.App
 	_, err := conn.Channel.QueueDeclare(queueName, true, false, false, false,
 		nil)
 	if err != nil {
@@ -14,7 +14,7 @@ func (conn Channel) StartConsumer(concurrency int) error {
 	}
 
 	err = conn.Channel.QueueBind(queueName, queueName+".*",
-		Config["Rabbitmq"]["Exchange"], false, nil)
+		Config.Rabbitmq.Exchange, false, nil)
 	if err != nil {
 		return err
 	}

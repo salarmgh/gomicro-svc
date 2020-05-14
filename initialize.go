@@ -10,11 +10,14 @@ var Connection Conn
 var Handlers map[string]func(message amqp.Delivery) bool
 var Channels map[string]chan string
 
-func Initialize(handlers []func(message amqp.Delivery) bool) {
-	InitConfig()
+func Initialize(app string, rabbitmqHost string, rabbitmqUser string,
+	rabbitmqPass string, rabbitmqExchange string, threadsNumber int,
+	handlers []func(message amqp.Delivery) bool) {
+	initConfig(app, rabbitmqHost, rabbitmqUser, rabbitmqPass, rabbitmqExchange,
+		threadsNumber)
 
-	rabbitmqURI := fmt.Sprintf("amqp://%s:%s@%s", Config["Rabbitmq"]["User"],
-		Config["Rabbitmq"]["Password"], Config["Rabbitmq"]["Host"])
+	rabbitmqURI := fmt.Sprintf("amqp://%s:%s@%s", Config.Rabbitmq.User,
+		Config.Rabbitmq.Password, Config.Rabbitmq.Host)
 	conn, err := GetConn(rabbitmqURI)
 	if err != nil {
 		panic(err)
@@ -25,7 +28,7 @@ func Initialize(handlers []func(message amqp.Delivery) bool) {
 
 	Channels = make(map[string]chan string)
 
-	err = declareExchange(Config["Rabbitmq"]["Exchange"])
+	err = declareExchange(Config.Rabbitmq.Exchange)
 	if err != nil {
 		panic(err)
 	}
