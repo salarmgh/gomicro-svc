@@ -13,8 +13,8 @@ var Channels map[string]chan string
 func Initialize(handlers []func(message amqp.Delivery) bool) {
 	initConfig()
 
-	rabbitmqURI := fmt.Sprintf("amqp://%s:%s@%s", config.Rabbitmq.User,
-		config.Rabbitmq.Password, config.Rabbitmq.Host)
+	rabbitmqURI := fmt.Sprintf("amqp://%s:%s@%s", Config["Rabbitmq"]["User"],
+		Config["Rabbitmq"]["Password"], Config["Rabbitmq"]["Host"])
 	conn, err := GetConn(rabbitmqURI)
 	if err != nil {
 		panic(err)
@@ -25,7 +25,7 @@ func Initialize(handlers []func(message amqp.Delivery) bool) {
 
 	Channels = make(map[string]chan string)
 
-	err = declareExchange(config.Rabbitmq.Exchange)
+	err = declareExchange(Config["Rabbitmq"]["Exchange"])
 	if err != nil {
 		panic(err)
 	}

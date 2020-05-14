@@ -6,7 +6,7 @@ import (
 )
 
 func (conn Channel) StartConsumer(concurrency int) error {
-	queueName := config.App
+	queueName := Config["App"]
 	_, err := conn.Channel.QueueDeclare(queueName, true, false, false, false,
 		nil)
 	if err != nil {
@@ -14,7 +14,7 @@ func (conn Channel) StartConsumer(concurrency int) error {
 	}
 
 	err = conn.Channel.QueueBind(queueName, queueName+".*",
-		config.Rabbitmq.Exchange, false, nil)
+		Config["Rabbitmq"]["Exchange"], false, nil)
 	if err != nil {
 		return err
 	}
@@ -32,7 +32,6 @@ func (conn Channel) StartConsumer(concurrency int) error {
 		return err
 	}
 
-	fmt.Println("GoMicroSVC started ...")
 	for i := 0; i < concurrency; i++ {
 		go func() {
 			for msg := range msgs {
