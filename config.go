@@ -8,7 +8,7 @@ import (
 
 var Config map[interface{}]interface{}
 
-func initConfig() {
+func InitConfig() {
 	Config = make(map[interface{}]interface{})
 
 	configFile, err := ioutil.ReadFile("config.yml")

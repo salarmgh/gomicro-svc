@@ -11,7 +11,7 @@ var Handlers map[string]func(message amqp.Delivery) bool
 var Channels map[string]chan string
 
 func Initialize(handlers []func(message amqp.Delivery) bool) {
-	initConfig()
+	InitConfig()
 
 	rabbitmqURI := fmt.Sprintf("amqp://%s:%s@%s", Config["Rabbitmq"]["User"],
 		Config["Rabbitmq"]["Password"], Config["Rabbitmq"]["Host"])
