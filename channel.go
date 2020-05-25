@@ -38,6 +38,8 @@ func (c channel) StartConsumer(concurrency int) error {
 		return err
 	}
 
+	err = c.queueBind(Config.App)
+
 	err = c.consume(Config.App, Config.Concurrency)
 	if err != nil {
 		return err
@@ -67,7 +69,7 @@ func (c channel) declareQueue(queueName string) error {
 	return nil
 }
 
-func (c channel) queueBind(queueName string, pattern string) error {
+func (c channel) queueBind(queueName string) error {
 	err := c.channel.QueueBind(queueName, queueName+".*",
 		Config.Rabbitmq.Exchange, false, nil)
 	if err != nil {

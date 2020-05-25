@@ -10,7 +10,6 @@ func RPCCall(routingKey string, message []byte) (string, error) {
 	uid := guuid.New().String()
 	callerID := fmt.Sprintf("%s%s%s", Config.App,
 		".reply_", uid)
-
 	c := make(chan string)
 	Channels[uid] = c
 

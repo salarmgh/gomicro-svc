@@ -11,7 +11,7 @@ var Handlers map[string]func(message amqp.Delivery) bool
 var Channels map[string]chan string
 
 var connection broker
-var rpcChan channel
+var rpcChan *channel
 
 // Initialize gomicrosvc
 func Initialize(app string, rabbitmqHost string, rabbitmqUser string,

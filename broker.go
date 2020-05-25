@@ -21,9 +21,12 @@ func (b *broker) getConn() error {
 	return nil
 }
 
-func (b *broker) getChannel() (channel, error) {
+func (b *broker) getChannel() (*channel, error) {
 	ch, err := b.Connection.Channel()
-	return channel{
+	if err != nil {
+		return nil, err
+	}
+	return &channel{
 		channel: ch,
 	}, err
 }
