@@ -1,59 +1,38 @@
 package gomicrosvc
 
 import (
-	"fmt"
-
 	"github.com/streadway/amqp"
 )
 
-var Connection Conn
+// Handlers map for dispatch
 var Handlers map[string]func(message amqp.Delivery) bool
+
+// Channels for Sync RPC
 var Channels map[string]chan string
 
+var connection broker
+var rpcChan channel
+
+// Initialize gomicrosvc
 func Initialize(app string, rabbitmqHost string, rabbitmqUser string,
 	rabbitmqPass string, rabbitmqExchange string, threadsNumber int,
-	handlers []func(message amqp.Delivery) bool) {
+	handlers []func(message amqp.Delivery) bool) error {
 	initConfig(app, rabbitmqHost, rabbitmqUser, rabbitmqPass, rabbitmqExchange,
 		threadsNumber)
 
-	rabbitmqURI := fmt.Sprintf("amqp://%s:%s@%s", Config.Rabbitmq.User,
-		Config.Rabbitmq.Password, Config.Rabbitmq.Host)
-	conn, err := GetConn(rabbitmqURI)
+	err := connection.getConn()
 	if err != nil {
-		panic(err)
+		return err
 	}
-	Connection = conn
+
+	rch, err := connection.getChannel()
+	if err != nil {
+		return err
+	}
+	rpcChan = rch
 
 	registerHandlers(handlers)
 
 	Channels = make(map[string]chan string)
-
-	err = declareExchange(Config.Rabbitmq.Exchange)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func declareExchange(exchangeName string) error {
-	ch, err := GetChannel(&Connection)
-	if err != nil {
-		panic(err)
-	}
-	return ch.Channel.ExchangeDeclare(
-		exchangeName,
-		"topic",
-		true,
-		false,
-		false,
-		false,
-		nil,
-	)
-}
-
-func registerHandlers(handlers []func(message amqp.Delivery) bool) {
-	h := map[string]func(message amqp.Delivery) bool{}
-	for _, function := range handlers {
-		h[getFunctionName(function)] = function
-	}
-	Handlers = h
+	return nil
 }

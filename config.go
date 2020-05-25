@@ -8,15 +8,15 @@ type Rabbitmq struct {
 }
 
 type Configuration struct {
-	App      string
-	Rabbitmq Rabbitmq
-	Threads  int
+	App         string
+	Rabbitmq    Rabbitmq
+	Concurrency int
 }
 
 var Config Configuration
 
 func initConfig(app string, rabbitmqHost string, rabbitmqUser string,
-	rabbitmqPass string, rabbitmqExchange string, threadsNumber int) {
+	rabbitmqPass string, rabbitmqExchange string, concurrencyNumber int) {
 
 	Config = Configuration{
 		App: app,
@@ -26,6 +26,6 @@ func initConfig(app string, rabbitmqHost string, rabbitmqUser string,
 			Password: rabbitmqPass,
 			Exchange: rabbitmqExchange,
 		},
-		Threads: threadsNumber,
+		Concurrency: concurrencyNumber,
 	}
 }

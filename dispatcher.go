@@ -1,7 +1,7 @@
 package gomicrosvc
 
 import (
-	"fmt"
+	"log"
 	"strings"
 
 	"github.com/streadway/amqp"
@@ -9,15 +9,14 @@ import (
 
 func dispatcher(message amqp.Delivery) bool {
 	if message.Body == nil {
-		fmt.Println("Error, no message body!")
+		log.Println("Error, no message body!")
 		return false
 	}
 
 	method := strings.Split(message.RoutingKey, ".")[1]
 	reply := strings.Split(method, "_")
-	isReply := reply[0] == "reply"
 
-	if isReply {
+	if reply[0] == "reply" {
 		go func() {
 			callID := reply[1]
 			if handler, ok := Channels[callID]; ok {
@@ -27,7 +26,7 @@ func dispatcher(message amqp.Delivery) bool {
 		}()
 	} else {
 		if handler, ok := Handlers[method]; ok {
-			go handler(message)
+			handler(message)
 		}
 	}
 	return true

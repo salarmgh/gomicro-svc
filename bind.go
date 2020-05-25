@@ -1,17 +1,26 @@
 package gomicrosvc
 
-import "fmt"
+import (
+	"log"
+)
 
-func Start() {
-	ch, err := GetChannel(&Connection)
+// Bind starts consumer
+func Bind(foreground bool) error {
+	ch, err := connection.getChannel()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	err = ch.StartConsumer(Config.Threads)
+	err = ch.StartConsumer(Config.Concurrency)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	fmt.Println("GoMicroSVC started ...")
+	log.Println("GoMicroSVC started")
+	if foreground {
+		forever := make(chan bool)
+		<-forever
+	}
+
+	return nil
 }
