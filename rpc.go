@@ -6,7 +6,7 @@ import (
 	guuid "github.com/google/uuid"
 )
 
-func RPCCall(routingKey string, message []byte) (string, error) {
+func RPCCall(routingKey string, message *[]byte) (string, error) {
 	uid := guuid.New().String()
 	callerID := fmt.Sprintf("%s%s%s", Config.App,
 		".reply_", uid)
@@ -18,6 +18,6 @@ func RPCCall(routingKey string, message []byte) (string, error) {
 	return <-c, nil
 }
 
-func AsyncRPCCall(routingKey string, message []byte) {
+func AsyncRPCCall(routingKey string, message *[]byte) {
 	rpcChan.Publish(routingKey, "", message)
 }

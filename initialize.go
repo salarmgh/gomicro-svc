@@ -1,11 +1,7 @@
 package gomicrosvc
 
-import (
-	"github.com/streadway/amqp"
-)
-
 // Handlers map for dispatch
-var Handlers map[string]func(message amqp.Delivery) bool
+var Handlers map[string]func(data *[]byte) (*[]byte, error)
 
 // Channels for Sync RPC
 var Channels map[string]chan string
@@ -16,7 +12,7 @@ var rpcChan *channel
 // Initialize gomicrosvc
 func Initialize(app string, rabbitmqHost string, rabbitmqUser string,
 	rabbitmqPass string, rabbitmqExchange string, threadsNumber int,
-	handlers []func(message amqp.Delivery) bool) error {
+	handlers []func(data *[]byte) (*[]byte, error)) error {
 	initConfig(app, rabbitmqHost, rabbitmqUser, rabbitmqPass, rabbitmqExchange,
 		threadsNumber)
 

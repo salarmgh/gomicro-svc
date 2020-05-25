@@ -12,7 +12,7 @@ type channel struct {
 }
 
 func (c channel) Publish(routingKey string, replyTo string,
-	data []byte) error {
+	data *[]byte) error {
 	return c.channel.Publish(
 		Config.Rabbitmq.Exchange,
 		routingKey,
@@ -22,7 +22,7 @@ func (c channel) Publish(routingKey string, replyTo string,
 			ContentType:  "application/octet-stream",
 			ReplyTo:      replyTo,
 			Priority:     0,
-			Body:         data,
+			Body:         *data,
 			DeliveryMode: amqp.Persistent,
 		})
 }

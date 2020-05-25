@@ -4,12 +4,10 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
-
-	"github.com/streadway/amqp"
 )
 
-func registerHandlers(handlers []func(message amqp.Delivery) bool) {
-	h := map[string]func(message amqp.Delivery) bool{}
+func registerHandlers(handlers []func(data *[]byte) (*[]byte, error)) {
+	h := map[string]func(data *[]byte) (*[]byte, error){}
 	for _, function := range handlers {
 		h[getFunctionName(function)] = function
 	}
