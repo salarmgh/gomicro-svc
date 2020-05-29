@@ -20,7 +20,7 @@ func dispatcher(message amqp.Delivery) bool {
 		go func() {
 			callID := reply[1]
 			if handler, ok := Channels[callID]; ok {
-				handler <- string(message.Body)
+				handler <- &message.Body
 				delete(Channels, callID)
 			}
 		}()

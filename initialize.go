@@ -4,7 +4,7 @@ package gomicrosvc
 var Handlers map[string]func(data *[]byte) (*[]byte, error)
 
 // Channels for Sync RPC
-var Channels map[string]chan string
+var Channels map[string]chan *[]byte
 
 var connection broker
 var rpcChan *channel
@@ -29,6 +29,6 @@ func Initialize(app string, rabbitmqHost string, rabbitmqUser string,
 
 	registerHandlers(handlers)
 
-	Channels = make(map[string]chan string)
+	Channels = make(map[string]chan *[]byte)
 	return nil
 }
