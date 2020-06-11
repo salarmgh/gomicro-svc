@@ -30,7 +30,6 @@ func dispatcher(message amqp.Delivery) bool {
 			if err != nil {
 				log.Println(err)
 			}
-			log.Println(result)
 			AsyncRPCCall(message.ReplyTo, result)
 		}
 	}
