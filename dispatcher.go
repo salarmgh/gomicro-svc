@@ -8,11 +8,6 @@ import (
 )
 
 func dispatcher(message amqp.Delivery) bool {
-	if message.Body == nil {
-		log.Println("Error, no message body!")
-		return false
-	}
-
 	method := strings.Split(message.RoutingKey, ".")[1]
 	reply := strings.Split(method, "_")
 
