@@ -12,7 +12,7 @@ var rpcChan *channel
 // Initialize gomicrosvc
 func Initialize(app string, rabbitmqHost string, rabbitmqUser string,
 	rabbitmqPass string, rabbitmqExchange string, threadsNumber int,
-	handlers []func(data *[]byte) *[]byte) error {
+	handlers []func(data *[]byte) (*[]byte, error)) error {
 	initConfig(app, rabbitmqHost, rabbitmqUser, rabbitmqPass, rabbitmqExchange,
 		threadsNumber)
 

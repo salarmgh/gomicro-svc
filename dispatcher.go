@@ -21,9 +21,10 @@ func dispatcher(message amqp.Delivery) bool {
 		}()
 	} else {
 		if handler, ok := Handlers[method]; ok {
-			result := handler(&message.Body)
+			result, err := handler(&message.Body)
 			if err != nil {
 				log.Println(err)
+				result.Error = err.Error()
 			}
 			AsyncRPCCall(message.ReplyTo, result)
 		}
