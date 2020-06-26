@@ -21,7 +21,7 @@ func dispatcher(message amqp.Delivery) bool {
 		}()
 	} else {
 		if handler, ok := Handlers[method]; ok {
-			result, err := handler(&message.Body)
+			result := handler(&message.Body)
 			if err != nil {
 				log.Println(err)
 			}
