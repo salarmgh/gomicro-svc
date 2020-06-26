@@ -1,7 +1,7 @@
 package gomicrosvc
 
 // Handlers map for dispatch
-var Handlers map[string]func(data *[]byte) *[]byte
+var Handlers map[string]func(data *[]byte) (*[]byte, error)
 
 // Channels for Sync RPC
 var Channels map[string]chan *[]byte
