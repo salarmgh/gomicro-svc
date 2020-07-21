@@ -14,6 +14,9 @@ func dispatcher(message amqp.Delivery) bool {
 		if err != nil {
 			log.Println(err)
 		}
+		log.Println(message.ReplyTo)
+		log.Println(message.CorrelationId)
+		log.Println(result)
 		err = Publish(message.ReplyTo, message.CorrelationId, result)
 		if err != nil {
 			return false
