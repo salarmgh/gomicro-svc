@@ -71,8 +71,8 @@ func (c channel) declareQueue(queueName string) error {
 	return nil
 }
 
-func (c channel) queueBind(queueName string) error {
-	err := c.Channel.QueueBind(queueName, queueName+".*",
+func (c channel) queueBind(queueName string, path string) error {
+	err := c.Channel.QueueBind(queueName, queueName+path,
 		Config.Rabbitmq.Exchange, false, nil)
 	if err != nil {
 		return err

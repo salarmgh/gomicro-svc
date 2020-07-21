@@ -46,7 +46,7 @@ func initRabbit() error {
 		return err
 	}
 
-	err = c.queueBind(Config.App)
+	err = c.queueBind(Config.App, ".*")
 	if err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func initRabbit() error {
 		return err
 	}
 
-	err = c.queueBind(fmt.Sprintf("%s-reply", Config.App))
+	err = c.queueBind(fmt.Sprintf("%s-reply", Config.App), "")
 	if err != nil {
 		return err
 	}
