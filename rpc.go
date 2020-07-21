@@ -47,7 +47,7 @@ func Publish(routingKey string, correlationId string, message *[]byte) error {
 	log.Println("==== Publish ====")
 	log.Println(routingKey)
 	log.Println(correlationId)
-	log.Println(message)
+	log.Println(*message)
 	err = c.Publish(routingKey, "", correlationId, message)
 	if err != nil {
 		return err
