@@ -5,22 +5,12 @@ import (
 )
 
 // Bind starts consumer
-func Bind(foreground bool) error {
+func Start() error {
+	log.Println("GoMicroSVC started")
 	ch, err := connection.getChannel()
 	if err != nil {
 		return err
 	}
-
-	err = ch.StartConsumer(Config.Concurrency)
-	if err != nil {
-		return err
-	}
-
-	log.Println("GoMicroSVC started")
-	if foreground {
-		forever := make(chan bool)
-		<-forever
-	}
-
-	return nil
+	err = ch.StartConsumer(Config.App)
+	return err
 }

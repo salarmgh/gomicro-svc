@@ -1,46 +1,48 @@
 package gomicrosvc
 
 import (
-	"fmt"
-	"os"
+	"errors"
+	"log"
 
 	"github.com/streadway/amqp"
 )
 
 type channel struct {
-	channel *amqp.Channel
+	Channel *amqp.Channel
 }
 
-func (c channel) Publish(routingKey string, replyTo string,
+func (c channel) Publish(routingKey string, replyTo string, correlationId string,
 	data *[]byte) error {
-	return c.channel.Publish(
+	return c.Channel.Publish(
 		Config.Rabbitmq.Exchange,
 		routingKey,
 		false,
 		false,
 		amqp.Publishing{
-			ContentType:  "application/octet-stream",
-			ReplyTo:      replyTo,
-			Priority:     0,
-			Body:         *data,
-			DeliveryMode: amqp.Persistent,
+			ContentType:   "application/octet-stream",
+			ReplyTo:       replyTo,
+			CorrelationId: correlationId,
+			Priority:      0,
+			Body:          *data,
+			DeliveryMode:  amqp.Persistent,
 		})
 }
 
-func (c channel) StartConsumer(concurrency int) error {
-	err := c.declareExchange("rpc-bus")
+//func (c channel) RPCCall(routingKey string, data *[]byte) error {
+//
+//}
+
+func (c channel) StartConsumer(queueName string) error {
+	err := c.consume(queueName)
 	if err != nil {
 		return err
 	}
 
-	err = c.declareQueue(Config.App)
-	if err != nil {
-		return err
-	}
+	return nil
+}
 
-	err = c.queueBind(Config.App)
-
-	err = c.consume(Config.App, Config.Concurrency)
+func (c channel) ClientConsumer(queueName string) error {
+	err := c.consume(queueName)
 	if err != nil {
 		return err
 	}
@@ -49,7 +51,7 @@ func (c channel) StartConsumer(concurrency int) error {
 }
 
 func (c channel) declareExchange(exchangeName string) error {
-	return c.channel.ExchangeDeclare(
+	return c.Channel.ExchangeDeclare(
 		exchangeName,
 		"topic",
 		true,
@@ -61,7 +63,7 @@ func (c channel) declareExchange(exchangeName string) error {
 }
 
 func (c channel) declareQueue(queueName string) error {
-	_, err := c.channel.QueueDeclare(queueName, true, false, false, false,
+	_, err := c.Channel.QueueDeclare(queueName, true, false, false, false,
 		nil)
 	if err != nil {
 		return err
@@ -70,7 +72,7 @@ func (c channel) declareQueue(queueName string) error {
 }
 
 func (c channel) queueBind(queueName string) error {
-	err := c.channel.QueueBind(queueName, queueName+".*",
+	err := c.Channel.QueueBind(queueName, queueName+".*",
 		Config.Rabbitmq.Exchange, false, nil)
 	if err != nil {
 		return err
@@ -78,8 +80,8 @@ func (c channel) queueBind(queueName string) error {
 	return nil
 }
 
-func (c channel) consume(queueName string, concurrency int) error {
-	msgs, err := c.channel.Consume(
+func (c channel) consume(queueName string) error {
+	msgs, err := c.Channel.Consume(
 		queueName,
 		"",
 		false,
@@ -92,18 +94,13 @@ func (c channel) consume(queueName string, concurrency int) error {
 		return err
 	}
 
-	for i := 0; i < concurrency; i++ {
-		go func() {
-			for msg := range msgs {
-				if dispatcher(msg) {
-					msg.Ack(false)
-				} else {
-					msg.Nack(false, true)
-				}
-			}
-			fmt.Println("Rabbit consumer closed - critical Error")
-			os.Exit(1)
-		}()
+	for msg := range msgs {
+		err = msg.Ack(false)
+		if err != nil {
+			log.Println(err)
+		}
+		dispatcher(msg)
 	}
-	return nil
+
+	return errors.New("Consumer exited")
 }

@@ -2,22 +2,51 @@ package gomicrosvc
 
 import (
 	"fmt"
+	"strings"
 
 	guuid "github.com/google/uuid"
 )
 
-func RPCCall(routingKey string, message *[]byte) (*[]byte, error) {
-	uid := guuid.New().String()
-	callerID := fmt.Sprintf("%s%s%s", Config.App,
-		".reply_", uid)
-	c := make(chan *[]byte)
-	Channels[uid] = c
+func RPC(routingKey string, message *[]byte) (*[]byte, error) {
+	c, err := connection.getChannel()
+	if err != nil {
+		return nil, err
+	}
+	defer c.Channel.Close()
 
-	rpcChan.Publish(routingKey, callerID, message)
+	correlationId := strings.Replace(guuid.New().String(), "-", "", -1)
+	msg, err := c.Channel.Consume(
+		fmt.Sprintf("%s-reply", Config.App),
+		"",
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+	err = c.Publish(routingKey, fmt.Sprintf("%s-reply", Config.App), correlationId, message)
+	if err != nil {
+		return nil, err
+	}
 
-	return <-c, nil
+	result := <-msg
+
+	return &result.Body, nil
 }
 
-func AsyncRPCCall(routingKey string, message *[]byte) {
-	rpcChan.Publish(routingKey, "", message)
+func Publish(routingKey string, correlationId string, message *[]byte) error {
+	c, err := connection.getChannel()
+	if err != nil {
+		return err
+	}
+	defer c.Channel.Close()
+
+	err = c.Publish(routingKey, "", correlationId, message)
+	if err != nil {
+		return err
+	}
+	return nil
 }

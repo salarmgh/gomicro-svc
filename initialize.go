@@ -1,13 +1,11 @@
 package gomicrosvc
 
+import "fmt"
+
 // Handlers map for dispatch
 var Handlers map[string]func(data *[]byte) (*[]byte, error)
 
-// Channels for Sync RPC
-var Channels map[string]chan *[]byte
-
 var connection broker
-var rpcChan *channel
 
 // Initialize gomicrosvc
 func Initialize(app string, rabbitmqHost string, rabbitmqUser string,
@@ -21,14 +19,47 @@ func Initialize(app string, rabbitmqHost string, rabbitmqUser string,
 		return err
 	}
 
-	rch, err := connection.getChannel()
+	registerHandlers(handlers)
+
+	err = initRabbit()
 	if err != nil {
 		return err
 	}
-	rpcChan = rch
 
-	registerHandlers(handlers)
+	return nil
+}
 
-	Channels = make(map[string]chan *[]byte)
+func initRabbit() error {
+	c, err := connection.getChannel()
+	if err != nil {
+		return err
+	}
+	defer c.Channel.Close()
+
+	err = c.declareExchange("rpc-bus")
+	if err != nil {
+		return err
+	}
+
+	err = c.declareQueue(Config.App)
+	if err != nil {
+		return err
+	}
+
+	err = c.queueBind(Config.App)
+	if err != nil {
+		return err
+	}
+
+	err = c.declareQueue(fmt.Sprintf("%s-reply", Config.App))
+	if err != nil {
+		return err
+	}
+
+	err = c.queueBind(fmt.Sprintf("%s-reply", Config.App))
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

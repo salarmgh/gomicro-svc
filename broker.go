@@ -27,6 +27,6 @@ func (b *broker) getChannel() (*channel, error) {
 		return nil, err
 	}
 	return &channel{
-		channel: ch,
+		Channel: ch,
 	}, err
 }
