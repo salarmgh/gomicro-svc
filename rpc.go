@@ -13,6 +13,7 @@ func RPC(routingKey string, message *[]byte) (*[]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.Println("FIRST")
 	defer c.Channel.Close()
 
 	correlationId := strings.Replace(guuid.New().String(), "-", "", -1)
@@ -25,15 +26,18 @@ func RPC(routingKey string, message *[]byte) (*[]byte, error) {
 		false,
 		nil,
 	)
+
 	if err != nil {
 		return nil, err
 	}
+	log.Println("SECOND")
 	err = c.Publish(routingKey, fmt.Sprintf("%s-reply", Config.App), correlationId, message)
 	if err != nil {
 		return nil, err
 	}
-
+	log.Println("THIRD")
 	result := <-msg
+	log.Println(result.Body)
 
 	return &result.Body, nil
 }
@@ -47,7 +51,7 @@ func Publish(routingKey string, correlationId string, message *[]byte) error {
 	log.Println("==== Publish ====")
 	log.Println(routingKey)
 	log.Println(correlationId)
-	log.Println(*message)
+	log.Println(message)
 	err = c.Publish(routingKey, "", correlationId, message)
 	if err != nil {
 		return err
