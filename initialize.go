@@ -41,7 +41,7 @@ func initRabbit() error {
 		return err
 	}
 
-	err = c.declareQueue(Config.App, false)
+	err = c.declareQueue(Config.App)
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func initRabbit() error {
 		return err
 	}
 
-	err = c.declareQueue(fmt.Sprintf("%s-reply", Config.App), true)
+	err = c.declareQueue(fmt.Sprintf("%s-reply", Config.App))
 	if err != nil {
 		return err
 	}

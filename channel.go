@@ -33,7 +33,7 @@ func (c channel) Publish(routingKey string, replyTo string, correlationId string
 //}
 
 func (c channel) StartConsumer(queueName string) error {
-	err := c.consume(queueName)
+	err := c.consume(queueName, false)
 	if err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func (c channel) StartConsumer(queueName string) error {
 }
 
 func (c channel) ClientConsumer(queueName string) error {
-	err := c.consume(queueName)
+	err := c.consume(queueName, false)
 	if err != nil {
 		return err
 	}
