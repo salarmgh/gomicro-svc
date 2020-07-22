@@ -80,7 +80,7 @@ func (c channel) queueBind(queueName string, path string) error {
 	return nil
 }
 
-func (c channel) consume(queueName string) error {
+func (c channel) consume(queueName string, exclusive bool) error {
 	msgs, err := c.Channel.Consume(
 		queueName,
 		"",

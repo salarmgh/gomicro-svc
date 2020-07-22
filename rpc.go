@@ -20,9 +20,9 @@ func RPC(routingKey string, message *[]byte) (*[]byte, error) {
 	msg, err := c.Channel.Consume(
 		fmt.Sprintf("%s-reply", Config.App),
 		"",
-		false,
-		false,
 		true,
+		false,
+		false,
 		false,
 		nil,
 	)
@@ -37,10 +37,6 @@ func RPC(routingKey string, message *[]byte) (*[]byte, error) {
 	}
 	log.Println("THIRD")
 	result := <-msg
-	err = result.Ack(false)
-	if err != nil {
-		log.Println(err)
-	}
 	log.Println(result.Body)
 	if result.CorrelationId == correlationId {
 		log.Println("CorrelationId Matched")
