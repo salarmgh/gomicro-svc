@@ -37,7 +37,7 @@ func RPC(routingKey string, message *[]byte) (*[]byte, error) {
 	}
 	log.Println("THIRD")
 	result := <-msg
-	err = msg.Ack(false)
+	err = result.Ack(false)
 	if err != nil {
 		log.Println(err)
 	}
