@@ -13,7 +13,7 @@ func RPC(routingKey string, message *[]byte) (*[]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println("FIRST")
+
 	defer c.Channel.Close()
 
 	correlationId := strings.Replace(guuid.New().String(), "-", "", -1)
@@ -22,7 +22,7 @@ func RPC(routingKey string, message *[]byte) (*[]byte, error) {
 		"",
 		false,
 		false,
-		false,
+		true,
 		false,
 		nil,
 	)
@@ -37,7 +37,14 @@ func RPC(routingKey string, message *[]byte) (*[]byte, error) {
 	}
 	log.Println("THIRD")
 	result := <-msg
+	err = msg.Ack(false)
+	if err != nil {
+		log.Println(err)
+	}
 	log.Println(result.Body)
+	if result.CorrelationId == correlationId {
+		log.Println("CorrelationId Matched")
+	}
 
 	return &result.Body, nil
 }
