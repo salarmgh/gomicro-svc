@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-func registerHandlers(handlers []func(data *[]byte) (*[]byte, error)) {
-	h := map[string]func(data *[]byte) (*[]byte, error){}
+func registerHandlers(handlers []func(data *[]*Data) (*[]*Data, error)) {
+	h := map[string]func(data *[]*Data) (*[]*Data, error){}
 	for _, function := range handlers {
 		h[getFunctionName(function)] = function
 	}

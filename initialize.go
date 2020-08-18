@@ -1,16 +1,22 @@
 package gomicrosvc
 
-import "fmt"
+import (
+	"fmt"
+
+	"google.golang.org/protobuf/types/known/anypb"
+)
+
+type Data = anypb.Any
 
 // Handlers map for dispatch
-var Handlers map[string]func(data *[]byte) (*[]byte, error)
+var Handlers map[string]func(data *[]*Data) (*[]*Data, error)
 
 var connection broker
 
 // Initialize gomicrosvc
 func Initialize(app string, rabbitmqHost string, rabbitmqUser string,
 	rabbitmqPass string, rabbitmqExchange string, threadsNumber int,
-	handlers []func(data *[]byte) (*[]byte, error)) error {
+	handlers []func(data *[]*Data) (*[]*Data, error)) error {
 	initConfig(app, rabbitmqHost, rabbitmqUser, rabbitmqPass, rabbitmqExchange,
 		threadsNumber)
 

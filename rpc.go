@@ -1,14 +1,16 @@
 package gomicrosvc
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strings"
 
 	guuid "github.com/google/uuid"
+	"google.golang.org/protobuf/proto"
 )
 
-func RPC(routingKey string, message *[]byte) (*[]byte, error) {
+func RPC(routingKey string, message *[]*Data) (*[]*Data, error) {
 	c, err := connection.getChannel()
 	if err != nil {
 		return nil, err
@@ -30,19 +32,31 @@ func RPC(routingKey string, message *[]byte) (*[]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println("SECOND")
-	err = c.Publish(routingKey, fmt.Sprintf("%s-reply", Config.App), correlationId, message)
+
+	data := Message{Result: *message, Error: ""}
+	marshalledData, err := proto.Marshal(&data)
+	if err != nil {
+		return nil, errors.New("Couldn't marshal")
+	}
+
+	err = c.Publish(routingKey, fmt.Sprintf("%s-reply", Config.App), correlationId, &marshalledData)
 	if err != nil {
 		return nil, err
 	}
-	log.Println("THIRD")
 	result := <-msg
-	log.Println(result.Body)
 	if result.CorrelationId == correlationId {
 		log.Println("CorrelationId Matched")
+	} else {
+		log.Println("CorrelationId Not Matched")
+	}
+	resp := Message{}
+	err = proto.Unmarshal(result.Body, &resp)
+
+	if resp.Error != "" {
+		return nil, errors.New(resp.Error)
 	}
 
-	return &result.Body, nil
+	return &resp.Result, nil
 }
 
 func Publish(routingKey string, correlationId string, message *[]byte) error {
@@ -51,10 +65,6 @@ func Publish(routingKey string, correlationId string, message *[]byte) error {
 		return err
 	}
 	defer c.Channel.Close()
-	log.Println("==== Publish ====")
-	log.Println(routingKey)
-	log.Println(correlationId)
-	log.Println(message)
 	err = c.Publish(routingKey, "", correlationId, message)
 	if err != nil {
 		return err
