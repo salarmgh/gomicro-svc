@@ -10,7 +10,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func RPC(routingKey string, message *[]*Data) (*[]*Data, error) {
+func RPC(routingKey string, message *Data) (*Data, error) {
 	c, err := connection.getChannel()
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func RPC(routingKey string, message *[]*Data) (*[]*Data, error) {
 		return nil, err
 	}
 
-	data := Message{Result: *message, Error: ""}
+	data := Message{Result: message, Error: ""}
 	marshalledData, err := proto.Marshal(&data)
 	if err != nil {
 		return nil, errors.New("Couldn't marshal")
@@ -56,7 +56,7 @@ func RPC(routingKey string, message *[]*Data) (*[]*Data, error) {
 		return nil, errors.New(resp.Error)
 	}
 
-	return &resp.Result, nil
+	return resp.Result, nil
 }
 
 func Publish(routingKey string, correlationId string, message *[]byte) error {

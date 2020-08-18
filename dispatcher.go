@@ -14,16 +14,16 @@ func dispatcher(message amqp.Delivery) bool {
 	if handler, ok := Handlers[method]; ok {
 		msg := Message{}
 		err := proto.Unmarshal(message.Body, &msg)
-		result, err := handler(&msg.Result)
+		result, err := handler(msg.Result)
 		if err != nil {
 			log.Println(err)
-			res := []*anypb.Any{}
-			data := Message{Result: res, Error: err.Error()}
+			res := anypb.Any{}
+			data := Message{Result: &res, Error: err.Error()}
 			marshalledData, err := proto.Marshal(&data)
 			if err != nil {
 				log.Println(err)
-				res := []*anypb.Any{}
-				data := Message{Result: res, Error: "Couldn't Marshal"}
+				res := anypb.Any{}
+				data := Message{Result: &res, Error: "Couldn't Marshal"}
 				marshalledData, _ := proto.Marshal(&data)
 				err = Publish(message.ReplyTo, message.CorrelationId, &marshalledData)
 				return true
@@ -31,12 +31,12 @@ func dispatcher(message amqp.Delivery) bool {
 			err = Publish(message.ReplyTo, message.CorrelationId, &marshalledData)
 			return true
 		}
-		data := Message{Result: *result, Error: ""}
+		data := Message{Result: result, Error: ""}
 		marshalledData, err := proto.Marshal(&data)
 		if err != nil {
 			log.Println(err)
-			res := []*anypb.Any{}
-			data := Message{Result: res, Error: "Couldn't Marshal"}
+			res := anypb.Any{}
+			data := Message{Result: &res, Error: "Couldn't Marshal"}
 			marshalledData, _ := proto.Marshal(&data)
 			err = Publish(message.ReplyTo, message.CorrelationId, &marshalledData)
 			return true
