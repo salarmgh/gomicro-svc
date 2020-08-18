@@ -55,22 +55,12 @@ func initRabbit() error {
 		return err
 	}
 
-	err = c.declareQueue(Config.App)
+	err = c.declareQueue(Config.App, false)
 	if err != nil {
 		return err
 	}
 
 	err = c.queueBind(Config.App, ".*")
-	if err != nil {
-		return err
-	}
-
-	err = c.declareQueue(replyQueue)
-	if err != nil {
-		return err
-	}
-
-	err = c.queueBind(replyQueue, "")
 	if err != nil {
 		return err
 	}

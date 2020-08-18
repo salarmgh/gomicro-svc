@@ -62,8 +62,8 @@ func (c channel) declareExchange(exchangeName string) error {
 	)
 }
 
-func (c channel) declareQueue(queueName string) error {
-	_, err := c.Channel.QueueDeclare(queueName, true, false, false, false,
+func (c channel) declareQueue(queueName string, isReply bool) error {
+	_, err := c.Channel.QueueDeclare(queueName, !isReply, isReply, false, false,
 		nil)
 	if err != nil {
 		return err
