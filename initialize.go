@@ -2,7 +2,9 @@ package gomicrosvc
 
 import (
 	"fmt"
+	"strings"
 
+	guuid "github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
@@ -13,12 +15,18 @@ var Handlers map[string]func(data *Data) (*Data, error)
 
 var connection broker
 
+var replyQueue string
+
 // Initialize gomicrosvc
 func Initialize(app string, rabbitmqHost string, rabbitmqUser string,
 	rabbitmqPass string, rabbitmqExchange string, threadsNumber int,
 	handlers []func(data *Data) (*Data, error)) error {
 	initConfig(app, rabbitmqHost, rabbitmqUser, rabbitmqPass, rabbitmqExchange,
 		threadsNumber)
+
+	replyID := strings.Replace(guuid.New().String(), "-", "", -1)
+
+	replyQueue = fmt.Sprintf("%s-reply-%s", Config.App, replyID)
 
 	err := connection.getConn()
 	if err != nil {
@@ -57,12 +65,12 @@ func initRabbit() error {
 		return err
 	}
 
-	err = c.declareQueue(fmt.Sprintf("%s-reply", Config.App))
+	err = c.declareQueue(replyQueue)
 	if err != nil {
 		return err
 	}
 
-	err = c.queueBind(fmt.Sprintf("%s-reply", Config.App), "")
+	err = c.queueBind(replyQueue, "")
 	if err != nil {
 		return err
 	}

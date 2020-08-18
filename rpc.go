@@ -2,7 +2,6 @@ package gomicrosvc
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"strings"
 
@@ -20,7 +19,7 @@ func RPC(routingKey string, message *Data) (*Data, error) {
 
 	correlationId := strings.Replace(guuid.New().String(), "-", "", -1)
 	msg, err := c.Channel.Consume(
-		fmt.Sprintf("%s-reply", Config.App),
+		replyQueue,
 		"",
 		true,
 		false,
@@ -39,7 +38,7 @@ func RPC(routingKey string, message *Data) (*Data, error) {
 		return nil, errors.New("Couldn't marshal")
 	}
 
-	err = c.Publish(routingKey, fmt.Sprintf("%s-reply", Config.App), correlationId, &marshalledData)
+	err = c.Publish(routingKey, replyQueue, correlationId, &marshalledData)
 	if err != nil {
 		return nil, err
 	}
