@@ -31,7 +31,7 @@ func RPC(routingKey string, message *Data) (*Data, error) {
 	msgs, err := c.Channel.Consume(
 		replyQueue,
 		"",
-		true,
+		false,
 		false,
 		false,
 		false,
@@ -57,8 +57,10 @@ func RPC(routingKey string, message *Data) (*Data, error) {
 	for d := range msgs {
 		if correlationId == d.CorrelationId {
 			result = d
+			d.Ack(true)
 			break
 		}
+		d.Ack(false)
 	}
 
 	resp := Message{}
