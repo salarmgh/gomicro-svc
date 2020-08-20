@@ -2,6 +2,7 @@ package gomicrosvc
 
 import (
 	"errors"
+	"log"
 	"strings"
 
 	guuid "github.com/google/uuid"
@@ -56,10 +57,14 @@ func RPC(routingKey string, message *Data) (*Data, error) {
 	var result amqp.Delivery
 	for d := range msgs {
 		if correlationId == d.CorrelationId {
+			log.Println("My message")
+			log.Println(correlationId)
 			result = d
 			d.Ack(true)
 			break
 		}
+		log.Println("Not my message")
+		log.Println(correlationId)
 		d.Ack(false)
 	}
 
