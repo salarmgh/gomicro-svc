@@ -49,7 +49,9 @@ func RPC(routingKey string, message *Data) (*Data, error) {
 		return nil, errors.New("Couldn't marshal")
 	}
 
+	log.Println("Before publish")
 	err = c.Publish(routingKey, replyQueue, correlationId, &marshalledData)
+	log.Println("After publish")
 	if err != nil {
 		return nil, err
 	}
