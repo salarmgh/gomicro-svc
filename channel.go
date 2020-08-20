@@ -28,9 +28,22 @@ func (c channel) Publish(routingKey string, replyTo string, correlationId string
 		})
 }
 
-//func (c channel) RPCCall(routingKey string, data *[]byte) error {
-//
-//}
+func (c channel) CallBackPublish(routingKey string, replyTo string, correlationId string,
+	data *[]byte) error {
+	return c.Channel.Publish(
+		"",
+		routingKey,
+		false,
+		false,
+		amqp.Publishing{
+			ContentType:   "application/octet-stream",
+			ReplyTo:       replyTo,
+			CorrelationId: correlationId,
+			Priority:      0,
+			Body:          *data,
+			DeliveryMode:  amqp.Persistent,
+		})
+}
 
 func (c channel) StartConsumer(queueName string) error {
 	err := c.consume(queueName, false)

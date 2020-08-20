@@ -76,7 +76,7 @@ func Publish(routingKey string, correlationId string, message *[]byte) error {
 		return err
 	}
 	defer c.Channel.Close()
-	err = c.Publish(routingKey, "", correlationId, message)
+	err = c.CallBackPublish(routingKey, "", correlationId, message)
 	if err != nil {
 		return err
 	}
