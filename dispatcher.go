@@ -41,6 +41,7 @@ func dispatcher(message amqp.Delivery) bool {
 			err = Publish(message.ReplyTo, message.CorrelationId, &marshalledData)
 			return true
 		}
+		log.Printf("Sent reply to %s, corrID: %s", message.ReplyTo, message.CorrelationId)
 		err = Publish(message.ReplyTo, message.CorrelationId, &marshalledData)
 		return true
 	}

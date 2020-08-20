@@ -49,9 +49,8 @@ func RPC(routingKey string, message *Data) (*Data, error) {
 		return nil, errors.New("Couldn't marshal")
 	}
 
-	log.Println("Before publish")
+	log.Printf("RPC publish routingKey: %s, replyQueue: %s, corrID: %s", routingKey, replyQueue, correlationId)
 	err = c.Publish(routingKey, replyQueue, correlationId, &marshalledData)
-	log.Println("After publish")
 	if err != nil {
 		return nil, err
 	}
@@ -59,14 +58,12 @@ func RPC(routingKey string, message *Data) (*Data, error) {
 	var result amqp.Delivery
 	for d := range msgs {
 		if correlationId == d.CorrelationId {
-			log.Println("My message")
-			log.Println(correlationId)
+			log.Printf("my %s == dst %s", correlationId, d.CorrelationId)
 			result = d
 			d.Ack(true)
 			break
 		}
-		log.Println("Not my message")
-		log.Println(correlationId)
+		log.Printf("my %s != dst %s", correlationId, d.CorrelationId)
 		d.Ack(false)
 	}
 
