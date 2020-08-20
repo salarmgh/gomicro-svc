@@ -62,23 +62,38 @@ func (c channel) declareExchange(exchangeName string) error {
 	)
 }
 
-func (c channel) declareQueue(queueName string, isReply bool) error {
-	_, err := c.Channel.QueueDeclare(queueName, !isReply, isReply, false, false,
+func (c channel) declareQueue(queueName string) error {
+	_, err := c.Channel.QueueDeclare(queueName, true, false, false, false,
 		nil)
 	if err != nil {
 		return err
 	}
-	if !isReply {
-		err = c.Channel.Qos(
-			1,
-			0,
-			false,
-		)
-		if err != nil {
-			return err
-		}
+	err = c.Channel.Qos(
+		1,
+		0,
+		false,
+	)
+	if err != nil {
+		return err
 	}
 	return nil
+}
+
+func (c channel) callBackQueue(queueName string) (*amqp.Queue, error) {
+	q, err := c.Channel.QueueDeclare("", false, false, true, false,
+		nil)
+	if err != nil {
+		return nil, err
+	}
+	err = c.Channel.Qos(
+		1,
+		0,
+		false,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &q, nil
 }
 
 func (c channel) queueBind(queueName string, path string) error {

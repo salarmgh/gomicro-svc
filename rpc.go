@@ -18,19 +18,14 @@ func RPC(routingKey string, message *Data) (*Data, error) {
 
 	defer c.Channel.Close()
 
-	err = c.declareQueue(replyQueue, true)
-	if err != nil {
-		return nil, err
-	}
-
-	err = c.queueBind(replyQueue, "")
+	q, err := c.callBackQueue(replyQueue)
 	if err != nil {
 		return nil, err
 	}
 
 	correlationId := strings.Replace(guuid.New().String(), "-", "", -1)
 	msgs, err := c.Channel.Consume(
-		replyQueue,
+		q.Name,
 		"",
 		true,
 		false,

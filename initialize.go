@@ -55,7 +55,7 @@ func initRabbit() error {
 		return err
 	}
 
-	err = c.declareQueue(Config.App, false)
+	err = c.declareQueue(Config.App)
 	if err != nil {
 		return err
 	}
