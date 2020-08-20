@@ -18,7 +18,7 @@ func RPC(routingKey string, message *Data) (*Data, error) {
 
 	defer c.Channel.Close()
 
-	q, err := c.callBackQueue(replyQueue)
+	q, err := c.callBackQueue()
 	if err != nil {
 		return nil, err
 	}
@@ -44,8 +44,8 @@ func RPC(routingKey string, message *Data) (*Data, error) {
 		return nil, errors.New("Couldn't marshal")
 	}
 
-	log.Printf("RPC publish routingKey: %s, replyQueue: %s, corrID: %s", routingKey, replyQueue, correlationId)
-	err = c.Publish(routingKey, replyQueue, correlationId, &marshalledData)
+	log.Printf("RPC publish routingKey: %s, replyQueue: %s, corrID: %s", routingKey, q.Name, correlationId)
+	err = c.Publish(routingKey, q.Name, correlationId, &marshalledData)
 	if err != nil {
 		return nil, err
 	}

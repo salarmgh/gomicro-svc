@@ -79,7 +79,7 @@ func (c channel) declareQueue(queueName string) error {
 	return nil
 }
 
-func (c channel) callBackQueue(queueName string) (*amqp.Queue, error) {
+func (c channel) callBackQueue() (*amqp.Queue, error) {
 	q, err := c.Channel.QueueDeclare("", false, false, true, false,
 		nil)
 	if err != nil {
