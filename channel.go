@@ -68,6 +68,16 @@ func (c channel) declareQueue(queueName string, isReply bool) error {
 	if err != nil {
 		return err
 	}
+	if !isReply {
+		err = c.Channel.Qos(
+			1,
+			0,
+			false,
+		)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

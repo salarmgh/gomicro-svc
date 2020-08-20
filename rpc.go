@@ -2,10 +2,10 @@ package gomicrosvc
 
 import (
 	"errors"
-	"log"
 	"strings"
 
 	guuid "github.com/google/uuid"
+	"github.com/streadway/amqp"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -28,7 +28,7 @@ func RPC(routingKey string, message *Data) (*Data, error) {
 	}
 
 	correlationId := strings.Replace(guuid.New().String(), "-", "", -1)
-	msg, err := c.Channel.Consume(
+	msgs, err := c.Channel.Consume(
 		replyQueue,
 		"",
 		true,
@@ -52,12 +52,15 @@ func RPC(routingKey string, message *Data) (*Data, error) {
 	if err != nil {
 		return nil, err
 	}
-	result := <-msg
-	if result.CorrelationId == correlationId {
-		log.Println("CorrelationId Matched")
-	} else {
-		log.Println("CorrelationId Not Matched")
+
+	var result amqp.Delivery
+	for d := range msgs {
+		if correlationId == d.CorrelationId {
+			result = d
+			break
+		}
 	}
+
 	resp := Message{}
 	err = proto.Unmarshal(result.Body, &resp)
 
