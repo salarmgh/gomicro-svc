@@ -1,9 +1,11 @@
 package gomicrosvc
 
 import (
+	"context"
 	"errors"
 	"log"
 	"strings"
+	"time"
 
 	guuid "github.com/google/uuid"
 	"github.com/streadway/amqp"
@@ -11,6 +13,19 @@ import (
 )
 
 func RPC(routingKey string, message *Data) (*Data, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	go func() {
+
+		select {
+		case <-ctx.Done():
+			err := ctx.Err()
+			log.Println(err)
+			break
+		}
+
+	}()
+
 	c, err := connection.getChannel()
 	if err != nil {
 		return nil, err
