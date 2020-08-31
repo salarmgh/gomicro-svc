@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log"
 	"strings"
-	"time"
 
 	guuid "github.com/google/uuid"
 	"github.com/streadway/amqp"
@@ -12,17 +11,6 @@ import (
 )
 
 func RPC(routingKey string, message *Data) (*Data, error) {
-	go func() {
-
-		select {
-		case <-ctx.Done():
-			err := ctx.Err()
-			log.Println(err)
-			break
-		}
-
-	}()
-
 	c, err := connection.getChannel()
 	if err != nil {
 		return nil, err
